@@ -1,6 +1,6 @@
 import './styles.css';
 import './js/timer';
-console.log(Date.parse('Jul 17, 2021') - Date.parse(new Date()));
+
 // function getTimeRemaining(endtime) {
 //   const total = Date.parse(endtime) - Date.parse(new Date());
 //   const seconds = Math.floor((total / 1000) % 60);

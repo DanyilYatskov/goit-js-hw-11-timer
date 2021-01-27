@@ -1,18 +1,19 @@
 class Timer {
-  constructor(selector, targetDate, refs) {
-    this.selector = selector;
-    this.targetDate = targetDate;
+  constructor(timer) {
+    this.selector = timer.selector;
+    this.targetDate = timer.targetDate;
     this.intervalId = null;
     this.active = false;
     this.refs = {
-      days: refs.days,
-      mins: refs.mins,
-      secs: refs.secs,
-      hours: refs.hours,
+      days: timer.refs.days,
+      mins: timer.refs.mins,
+      secs: timer.refs.secs,
+      hours: timer.refs.hours,
+      endDate: timer.refs.endDate,
     };
   }
   getRemainingTime() {
-    const total = Date.parse(new Date()) - Date.parse(this.targetDate);
+    const total = Date.parse(this.targetDate) - Date.parse(new Date());
     const days = Math.floor(total / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
       (total % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
@@ -29,10 +30,10 @@ class Timer {
   }
   updateTimer() {
     const time = this.getRemainingTime();
-    this.refs.days.innerHTML = time.days;
-    this.refs.hours.innerHTML = ('0' + time.hours).slice(-2);
-    this.refs.mins.innerHTML = ('0' + time.mins).slice(-2);
-    this.refs.secs.innerHTML = ('0' + time.secs).slice(-2);
+    this.refs.days.innerHTML = this.pad(time.days);
+    this.refs.hours.innerHTML = this.pad(time.hours);
+    this.refs.mins.innerHTML = this.pad(time.mins);
+    this.refs.secs.innerHTML = this.pad(time.secs);
     if (time.total <= 0) {
       clearInterval(this.intervalId);
     }
@@ -41,8 +42,15 @@ class Timer {
     if (this.active) {
       return;
     }
+    this.refs.endDate.innerHTML = `До ${this.targetDate.getDate()}-го ${this.targetDate.toLocaleString(
+      'ru-RU',
+      { month: 'long' },
+    )} ${this.targetDate.getFullYear()} года осталось`;
+
     this.updateTimer();
-    this.intervalId = setInterval(this.updateTimer, 1000);
+    this.intervalId = setInterval(() => {
+      this.updateTimer();
+    }, 1000);
     this.active = true;
   }
   stopTimer() {
@@ -50,12 +58,24 @@ class Timer {
     this.active = false;
     this.intervalId = null;
   }
+  pad(value) {
+    if (value.length > 2) {
+      return;
+    }
+    return String(value).padStart(2, '0');
+  }
 }
-const refs = {
-  days: document.querySelector("[data-value='days']"),
-  mins: document.querySelector("[data-value='mins']"),
-  secs: document.querySelector("[data-value='secs']"),
-  hours: document.querySelector("[data-value='hours']"),
+const t = {
+  selector: '#timer-1',
+  targetDate: new Date('March 8, 2021'),
+  refs: {
+    days: document.querySelector("[data-value='days']"),
+    mins: document.querySelector("[data-value='mins']"),
+    secs: document.querySelector("[data-value='secs']"),
+    hours: document.querySelector("[data-value='hours']"),
+    endDate: document.querySelector('h1'),
+  },
 };
-let timer = new Timer('#timer-1', new Date('Jul 17, 2019'), refs);
+
+let timer = new Timer(t);
 timer.startTimer();
